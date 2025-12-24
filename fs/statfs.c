@@ -81,9 +81,9 @@ int vfs_statfs(const struct path *path, struct kstatfs *buf)
 	if (likely(susfs_is_current_proc_umounted())) {
 		for (; mnt->mnt_id >= DEFAULT_KSU_MNT_ID; mnt = mnt->mnt_parent) {}
 	}
-	error = statfs_by_dentry(mnt->mnt.mnt_root, buf);
+	error = statfs_by_dentry(mnt->mnt->mnt_root, buf);
 	if (!error)
-		buf->f_flags = calculate_f_flags(&mnt->mnt);
+		buf->f_flags = calculate_f_flags(mnt->mnt);
 	return error;
 #else
 	error = statfs_by_dentry(path->dentry, buf);

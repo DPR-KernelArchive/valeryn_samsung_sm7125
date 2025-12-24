@@ -356,13 +356,13 @@ static void mnt_free_id(struct mount *mnt)
 #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
 	// First we have to check if susfs_mnt_id_backup == DEFAULT_KSU_MNT_ID,
 	// if so, no need to free.
-	if (mnt->mnt.susfs_mnt_id_backup == DEFAULT_KSU_MNT_ID) {
+	if (mnt->mnt->susfs_mnt_id_backup == DEFAULT_KSU_MNT_ID) {
 		return;
 	}
 
 	// Second if susfs_mnt_id_backup was set after mnt_id reorder, free it if so.
-	if (likely(mnt->mnt.susfs_mnt_id_backup)) {
-		ida_free(&mnt_id_ida, mnt->mnt.susfs_mnt_id_backup);
+	if (likely(mnt->mnt->susfs_mnt_id_backup)) {
+		ida_free(&mnt_id_ida, mnt->mnt->susfs_mnt_id_backup);
 		return;
 	}
 
@@ -494,7 +494,7 @@ static struct mount *susfs_reuse_sus_vfsmnt(const char *name, int orig_mnt_id)
 		mnt->mnt_writers = 0;
 #endif
 		// Makes ida_free() easier to determine whether it should free the mnt_id or not
-		mnt->mnt.susfs_mnt_id_backup = DEFAULT_KSU_MNT_ID;
+		mnt->mnt->susfs_mnt_id_backup = DEFAULT_KSU_MNT_ID;
 
 		INIT_HLIST_NODE(&mnt->mnt_hash);
 		INIT_LIST_HEAD(&mnt->mnt_child);
@@ -546,7 +546,7 @@ static struct mount *susfs_alloc_sus_vfsmnt(const char *name)
 		mnt->mnt_writers = 0;
 #endif
 		// Makes ida_free() easier to determine whether it should free the mnt_id or not
-		mnt->mnt.susfs_mnt_id_backup = DEFAULT_KSU_MNT_ID;
+		mnt->mnt->susfs_mnt_id_backup = DEFAULT_KSU_MNT_ID;
 
 		INIT_HLIST_NODE(&mnt->mnt_hash);
 		INIT_LIST_HEAD(&mnt->mnt_child);
@@ -609,7 +609,7 @@ static struct mount *alloc_vfsmnt(const char *name)
 #endif
 #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
 		// Make sure mnt->mnt.susfs_mnt_id_backup is initialized every time.
-		mnt->mnt.susfs_mnt_id_backup = 0;
+		mnt->mnt->susfs_mnt_id_backup = 0;
 #endif
 		INIT_HLIST_NODE(&mnt->mnt_hash);
 		INIT_LIST_HEAD(&mnt->mnt_child);
@@ -4574,7 +4574,7 @@ void susfs_reorder_mnt_id(void) {
 		if (mnt->mnt_id == DEFAULT_KSU_MNT_ID) {
 			continue;
 		}
-		WRITE_ONCE(mnt->mnt.susfs_mnt_id_backup, READ_ONCE(mnt->mnt_id));
+		WRITE_ONCE(mnt->mnt->susfs_mnt_id_backup, READ_ONCE(mnt->mnt_id));
 		WRITE_ONCE(mnt->mnt_id, first_mnt_id++);
 	}
 
